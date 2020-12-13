@@ -1,0 +1,24 @@
+# instalar node js
+# instalar mongodb
+# instalar robo 3t
+
+# Crear el proyecto
+npm init
+
+# Instalando dependencias
+npm install express --save                      # framework para trabajar con peticiones http, rutas
+npm install bcrypt-nodejs --save                # para encriptar contraseñas
+npm install body-parser --save                  # convertir peticiones json a objetos javascript
+npm install connect-multiparty --save           # subir ficheros
+npm install mongoose --save                     # orm para mongodb
+npm install jwt-simple --save                   # gestión de tokens
+npm install moment --save                       # gestión de fechas
+npm install nodemon --save-dev                  # reinicia el server cada vez que hay cambios en el código
+
+# Añadir esto a package.json --> "scripts"
+"start": "nodemon index.js"
+
+# Para ejecutar el proyecto
+npm start
+
+# app.js --> express
