@@ -18,7 +18,17 @@ npm install nodemon --save-dev                  # reinicia el server cada vez qu
 # Añadir esto a package.json --> "scripts"
 "start": "nodemon index.js"
 
-# Para ejecutar el proyecto
+# Para ejecutar el proyecto (en carpeta api)
 npm start
 
 # app.js --> express
+
+# Pasos para crear un endpoint
+1.- Crear un modelo (api/models/user.js)
+2.- Crear un controlador de ese modelo (api/controllers/user.js)
+3.- Crear rutas para ese modelo (api/routes/user.js)
+4.- Crear una funcion en ese controller (por ejemplo function create(request, response))
+5.- Disponibilizar la función creada (module.exports = {create};)
+6.- En el archivo ruta, definir el método http (api.post("/users", UserController.create);)
+7.- En la aplicación (app.js) se debe cargar la ruta (let userRoutes = require("./routes/user");) 
+y añadirla a la app (app.use("/api/v1", userRoutes);)
