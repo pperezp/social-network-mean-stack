@@ -6,8 +6,12 @@ const user = require("../models/user");
 // Se carga el model de usuario
 let User = require("../models/user");
 
-function create(request, response){
+async function create(request, response){
     let params = request.body;
+
+    if(await userExist(params)){
+        return response.status(200).send({message : "Usuario ya existe"});
+    }
 
     // Si llegan los datos
     if(isDataOK(params)){
@@ -17,6 +21,24 @@ function create(request, response){
     }else{
         response.status(200).send({message : "Faltan datos"});
     }
+}
+
+async function userExist(params){
+    let users = await getUsers(params);
+
+    return users && users.length > 0;
+}
+
+async function getUsers(params){
+    // await es para que el resultado se retorne
+    // se debe usar si o si dentro de una funcion async
+        
+    return await User.find({
+        $or : [
+            {email : params.email.toLowerCase()},
+            {nick : params.nick.toLowerCase()}
+        ]
+    });
 }
 
 function isDataOK(params){
