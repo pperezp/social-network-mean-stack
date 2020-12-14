@@ -1,10 +1,11 @@
 "use strict"
 
 let bcrypt = require("bcrypt-nodejs");
-const user = require("../models/user");
 
 // Se carga el model de usuario
 let User = require("../models/user");
+
+let jwt = require("../services/jwt");
 
 async function create(request, response){
     let params = request.body;
@@ -94,7 +95,6 @@ async function login(request, response){
     let email = params.email;
     let password = params.password;
 
-
     let user = await User.findOne({
         "email" : email
     });
@@ -107,7 +107,17 @@ async function login(request, response){
         return response.status(200).send({message : "Password incorrecta"});
     }
 
-    return response.status(200).send(user);
+    deletePassword(user);
+
+    return response.status(200).send(
+        {
+            token : jwt.createToken(user)
+        }
+    );
+}
+
+function deletePassword(user){
+    user.password = undefined;
 }
 
 // Disponibilizar estas funciones fuera de este archivo
