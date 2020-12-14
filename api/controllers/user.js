@@ -19,7 +19,7 @@ async function create(request, response){
 
         save(user, response);
     }else{
-        response.status(200).send({message : "Faltan datos"});
+        return response.status(200).send({message : "Faltan datos"});
     }
 }
 
@@ -32,7 +32,7 @@ async function userExist(params){
 async function getUsers(params){
     // await es para que el resultado se retorne
     // se debe usar si o si dentro de una funcion async
-        
+
     return await User.find({
         $or : [
             {email : params.email.toLowerCase()},
@@ -67,13 +67,13 @@ function passwordEncrypt(password){
 function save(user, response){
     user.save((error, userStored) => {
         if(error){
-            response.status(500).send({message : "Error al guardar el usuario"});
+            return response.status(500).send({message : "Error al guardar el usuario"});
         }
 
         if(userStored){
-            response.status(200).send({user : userStored});
+            return response.status(200).send({user : userStored});
         }else{
-            response.status(404).send({message : "No se ha registrado el usuario"});
+            return response.status(404).send({message : "No se ha registrado el usuario"});
         }
     });
 }
@@ -81,12 +81,34 @@ function save(user, response){
 function getAll(request, response){
     User.find({}, (error, users) => {
         if(error){
-            response.status(500).send({message : "Error al obtener todos los usuarios"});
+            return response.status(500).send({message : "Error al obtener todos los usuarios"});
         }
 
-        response.status(200).send(users);
+        return response.status(200).send(users);
     });
 }
 
+async function login(request, response){
+    let params = request.body;
+
+    let email = params.email;
+    let password = params.password;
+
+
+    let user = await User.findOne({
+        "email" : email
+    });
+
+    if(!user){
+        return response.status(200).send({message : "Usuario no encontrado"});
+    }
+
+    if(!bcrypt.compareSync(password, user.password)){
+        return response.status(200).send({message : "Password incorrecta"});
+    }
+
+    return response.status(200).send(user);
+}
+
 // Disponibilizar estas funciones fuera de este archivo
-module.exports = {create, getAll};
+module.exports = {create, getAll, login};
