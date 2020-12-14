@@ -82,17 +82,17 @@ function save(user, response){
     });
 }
 
-function getAll(request, response){
-    User.find({}, (error, users) => {
+function getUser(request, response){
+    let userId = request.params.id;
+
+    User.findById(userId, (error, user) => {
         if(error){
-            return response.status(500).send({message : "Error al obtener todos los usuarios"});
+            return response.status(404).send({message : "Usuario no existe: "});
         }
 
-        users.forEach((user) => {
-            deletePassword(user);
-        });
+        deletePassword(user);
 
-        return response.status(200).send(users);
+        return response.status(200).send(user);
     });
 }
 
@@ -125,4 +125,4 @@ function deletePassword(user){
 // Endpoints y funciones
 
 // Disponibilizar estas funciones fuera de este archivo
-module.exports = {create, getAll, login};
+module.exports = {create, getUser, login};

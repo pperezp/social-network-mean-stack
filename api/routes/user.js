@@ -9,7 +9,7 @@ let api = express.Router();
 let middlewareAuth = require("../middlewares/auth");
 
 api.post("/users", middlewareAuth.auth, UserController.create);
-api.get("/users", middlewareAuth.auth, UserController.getAll);
+api.get("/users/:id", middlewareAuth.auth, UserController.getUser);
 api.post("/users/login", UserController.login);
 
 module.exports = api;
