@@ -2,7 +2,7 @@
 
 let jwt = require("jwt-simple");
 let moment = require("moment");
-let secret = "any-secret-key";
+let config = require("../models/config");
 
 exports.createToken = (user) => {
     let payload = {
@@ -17,5 +17,5 @@ exports.createToken = (user) => {
         exp : moment().add(30, "days").unix()
     };
 
-    return jwt.encode(payload, secret);
+    return jwt.encode(payload, config.SECRET_KEY);
 };

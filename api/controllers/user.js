@@ -1,12 +1,15 @@
 "use strict"
 
+// Se carga bcrypt para la password
 let bcrypt = require("bcrypt-nodejs");
 
 // Se carga el model de usuario
 let User = require("../models/user");
 
+// Se carga el json web token
 let jwt = require("../services/jwt");
 
+// Endpoints y funciones
 async function create(request, response){
     let params = request.body;
 
@@ -85,6 +88,10 @@ function getAll(request, response){
             return response.status(500).send({message : "Error al obtener todos los usuarios"});
         }
 
+        users.forEach((user) => {
+            deletePassword(user);
+        });
+
         return response.status(200).send(users);
     });
 }
@@ -109,16 +116,13 @@ async function login(request, response){
 
     deletePassword(user);
 
-    return response.status(200).send(
-        {
-            token : jwt.createToken(user)
-        }
-    );
+    return response.status(200).send({token : jwt.createToken(user)});
 }
 
 function deletePassword(user){
     user.password = undefined;
 }
+// Endpoints y funciones
 
 // Disponibilizar estas funciones fuera de este archivo
 module.exports = {create, getAll, login};
