@@ -11,5 +11,6 @@ let middlewareAuth = require("../middlewares/auth");
 api.post("/users", middlewareAuth.auth, UserController.create);
 api.get("/users/:id", middlewareAuth.auth, UserController.getUser);
 api.post("/users/login", UserController.login);
+api.get("/users/page/:page", middlewareAuth.auth, UserController.getPaginationUsers);
 
 module.exports = api;

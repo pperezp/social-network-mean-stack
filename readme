@@ -14,6 +14,7 @@ npm install mongoose --save                     # orm para mongodb
 npm install jwt-simple --save                   # gestión de tokens
 npm install moment --save                       # gestión de fechas
 npm install nodemon --save-dev                  # reinicia el server cada vez que hay cambios en el código
+npm install mongoose-pagination --save          # pagination
 
 # Añadir esto a package.json --> "scripts"
 "start": "nodemon index.js"

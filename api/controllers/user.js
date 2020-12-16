@@ -9,6 +9,9 @@ let User = require("../models/user");
 // Se carga el json web token
 let jwt = require("../services/jwt");
 
+// Pagination
+let mongoosePaginate = require("mongoose-pagination");
+
 // Endpoints y funciones
 async function create(request, response){
     let params = request.body;
@@ -122,7 +125,31 @@ async function login(request, response){
 function deletePassword(user){
     user.password = undefined;
 }
+
+async function getPaginationUsers(request, response){
+    // El id del usuario logeado (ver jwt.js)
+    let identityUserId = request.user.sub;
+
+    let page = 1;
+    if(request.params.page){
+        page = request.params.page;
+    }
+
+    let itemsPerPage = 2;
+
+    User.find().sort("_id").paginate(page, itemsPerPage, (error, users, total) => {
+        if(error) 
+            return response.status(500).send({message:"Error en la petición"});
+
+        if(!users || users.length == 0) 
+            return response.status(404).send({message : "No hay usuarios disponibles"});
+        
+        return response.status(200).send({
+            pages : Math.ceil(total / itemsPerPage), total, users 
+        });
+    });
+}
 // Endpoints y funciones
 
 // Disponibilizar estas funciones fuera de este archivo
-module.exports = {create, getUser, login};
+module.exports = {create, getUser, login, getPaginationUsers};
