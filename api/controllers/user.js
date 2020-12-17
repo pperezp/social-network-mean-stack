@@ -12,6 +12,12 @@ let jwt = require("../services/jwt");
 // Pagination
 let mongoosePaginate = require("mongoose-pagination");
 
+// Para borrar el fichero si esta incorrecto (image)
+// Librería file system y path de node 
+let fs = require("fs");
+let path = require("path");
+
+
 // Endpoints y funciones
 async function create(request, response){
     let params = request.body;
@@ -127,9 +133,6 @@ function deletePassword(user){
 }
 
 async function getPaginationUsers(request, response){
-    // El id del usuario logeado (ver jwt.js)
-    let identityUserId = request.user.sub;
-
     let page = 1;
     if(request.params.page){
         page = request.params.page;
@@ -154,19 +157,19 @@ function update(request, response){
     // El id del usuario logeado (ver jwt.js)
     let identityUserId = request.user.sub;
     let userId = request.params.id;
-    let update = request.body;
+    let newUser = request.body;
 
     // Borrar la propiedad password, ya que no se puede cambiar
     // En definitiva, eliminamos los campos que no se puedan actualizar
-    delete update.password;
-    delete update.role
+    delete newUser.password;
+    delete newUser.role
 
     if(userId != identityUserId){
         return response.status(500).send({message:"No tienes permiso para actualizar los datos del usuario"});
     }
 
     // new:true --> userUpdate es el objeto actualizado, si no retorna el antiguo
-    User.findByIdAndUpdate(userId, update, {new:true},(error, userUpdated) => {
+    User.findByIdAndUpdate(userId, newUser, {new:true},(error, userUpdated) => {
         if(error) 
             return response.status(500).send({message:"Error en la petición"});
 
@@ -176,7 +179,49 @@ function update(request, response){
         return response.status(200).send({user:userUpdated});
     });
 }
+
+function uploadImage(request, response){
+    // El id del usuario logeado (ver jwt.js)
+    let identityUserId = request.user.sub;
+    let userId = request.params.id;
+
+    if(request.files){
+        let image = request.files.image;
+        let filePath = image.path;
+        let fileType = image.type;
+
+        if(userId != identityUserId){
+            deleteFile(image.path, (error) => {
+                return response.status(500).send({message:"No tienes permiso para actualizar una foto"});
+            });
+        }
+
+        if(isImage(fileType)){
+            User.findByIdAndUpdate(userId, {"image":filePath}, {new:true},(error, userUpdated) => {
+                if(error) 
+                    return response.status(500).send({message:"Error en la petición"});
+        
+                if(!userUpdated)
+                    return response.status(404).send({message:"No se ha podido actualizar el usuario"});
+        
+                return response.status(200).send({user:userUpdated});
+            });
+        }else{
+            deleteFile(filePath, (error) => {
+                return response.status(200).send({message:"No es foto ó se subieron mas de un archivo"});
+            });
+        }
+    }
+}
+
+function isImage(fileType){
+    return fileType.includes("png") || fileType.includes("jpeg"); 
+}
+
+function deleteFile(filePath, callBack){
+    fs.unlink(filePath, callBack);
+}
 // Endpoints y funciones
 
 // Disponibilizar estas funciones fuera de este archivo
-module.exports = {create, getUser, login, getPaginationUsers, update};
+module.exports = {create, getUser, login, getPaginationUsers, update, uploadImage};
