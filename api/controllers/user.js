@@ -149,7 +149,34 @@ async function getPaginationUsers(request, response){
         });
     });
 }
+
+function update(request, response){
+    // El id del usuario logeado (ver jwt.js)
+    let identityUserId = request.user.sub;
+    let userId = request.params.id;
+    let update = request.body;
+
+    // Borrar la propiedad password, ya que no se puede cambiar
+    // En definitiva, eliminamos los campos que no se puedan actualizar
+    delete update.password;
+    delete update.role
+
+    if(userId != identityUserId){
+        return response.status(500).send({message:"No tienes permiso para actualizar los datos del usuario"});
+    }
+
+    // new:true --> userUpdate es el objeto actualizado, si no retorna el antiguo
+    User.findByIdAndUpdate(userId, update, {new:true},(error, userUpdated) => {
+        if(error) 
+            return response.status(500).send({message:"Error en la petición"});
+
+        if(!userUpdated)
+            return response.status(404).send({message:"No se ha podido actualizar el usuario"});
+
+        return response.status(200).send({user:userUpdated});
+    });
+}
 // Endpoints y funciones
 
 // Disponibilizar estas funciones fuera de este archivo
-module.exports = {create, getUser, login, getPaginationUsers};
+module.exports = {create, getUser, login, getPaginationUsers, update};

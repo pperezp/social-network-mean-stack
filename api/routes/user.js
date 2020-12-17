@@ -12,5 +12,6 @@ api.post("/users", middlewareAuth.auth, UserController.create);
 api.get("/users/:id", middlewareAuth.auth, UserController.getUser);
 api.post("/users/login", UserController.login);
 api.get("/users/page/:page", middlewareAuth.auth, UserController.getPaginationUsers);
+api.put("/users/:id", middlewareAuth.auth, UserController.update);
 
 module.exports = api;
